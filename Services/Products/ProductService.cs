@@ -1,5 +1,7 @@
 ﻿using App.Repositories;
 using App.Repositories.Products;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace App.Services.Products
@@ -20,7 +22,17 @@ namespace App.Services.Products
 
         }
 
-        public async Task<ServiceResult<ProductDto>> GetProductByIdAsync(int id)
+        public async Task<ServiceResult<List<ProductDto>>> GetAllListAsync()
+        {
+            // list döndüğümüz yerlerde geriye null dönmeyelim , boş liste dönelim.
+            var products = await productRepository.GetAll().ToListAsync();
+
+            var productsAsDto = products.Select(p => new ProductDto(p.Id, p.Name, p.Price, p.Stock)).ToList();
+
+            return ServiceResult<List<ProductDto>>.Success(productsAsDto);
+        }
+
+        public async Task<ServiceResult<ProductDto?>> GetByIdAsync(int id)
         {
             var product = await productRepository.GetByIdAsync(id);
 
@@ -30,11 +42,11 @@ namespace App.Services.Products
             }
             var productAsDto = new ProductDto(product!.Id, product.Name, product.Price, product.Stock);
 
-            return ServiceResult<ProductDto>.Success(productAsDto!);
+            return ServiceResult<ProductDto>.Success(productAsDto)!;
 
         }
 
-        public async Task<ServiceResult<CreateProductResponse>> CreateProductAsync(CreateProductRequest Request)
+        public async Task<ServiceResult<CreateProductResponse>> CreateAsync(CreateProductRequest Request)
         {
             var product = new Product()
             {
@@ -50,7 +62,7 @@ namespace App.Services.Products
         }
         // update ve delete de geriye bir şey dönmeyiz. 204 döneriz
 
-        public async Task<ServiceResult> UpdateProductAsync(int id, UpdateProductRequest request)
+        public async Task<ServiceResult> UpdateAsync(int id, UpdateProductRequest request)
         {
             // fast fail  önce olumsuz durumları dönmek.-> önce başarısız durumları döneriz
 
@@ -72,7 +84,20 @@ namespace App.Services.Products
             productRepository.Update(product);
             await unitOfWork.SaveChangesAsync();
 
-            return ServiceResult.Success();
+            return ServiceResult.Success(HttpStatusCode.NoContent);
+        }
+
+        public async Task<ServiceResult> DeleteAsync(int id)
+        {
+            var product = await productRepository.GetByIdAsync(id);
+
+            if (product is null)
+            {
+                return ServiceResult.Fail("Product not found", HttpStatusCode.NotFound);
+            }
+            productRepository.Delete(product);
+            await unitOfWork.SaveChangesAsync();
+            return ServiceResult.Success(HttpStatusCode.NoContent);
         }
     }
 }

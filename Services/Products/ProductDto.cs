@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace App.Services.Products
 {
     // bildiğimiz class gibi record.
-    public record ProductDto(int , string Name , decimal Price ,int Stock);
+    public record ProductDto(int Id, string Name , decimal Price ,int Stock);
 
 
     //public record ProductDto

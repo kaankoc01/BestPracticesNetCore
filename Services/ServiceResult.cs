@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json.Serialization;
 
 namespace App.Services
 {
@@ -6,16 +7,16 @@ namespace App.Services
     {
         public T? Data { get; set; }
         public List<string>? ErrorMessage { get; set; }
-
+        [JsonIgnore]
         public bool IsSuccess => ErrorMessage == null || ErrorMessage.Count == 0;
-
+        [JsonIgnore]
         public bool IsFail => !IsSuccess;
-
-        public HttpStatusCode Status { get; set; } 
+        [JsonIgnore]
+        public HttpStatusCode Status { get; set; }
 
 
         // static factory method. newlemeyi kontrol altına alıyoruz.
-        public static ServiceResult<T> Success(T data,HttpStatusCode status=HttpStatusCode.OK)
+        public static ServiceResult<T> Success(T data, HttpStatusCode status = HttpStatusCode.OK)
         {
             return new ServiceResult<T>
             {
@@ -24,7 +25,7 @@ namespace App.Services
             };
 
         }
-        public static ServiceResult<T> Fail(List<string> errorMessage , HttpStatusCode status = HttpStatusCode.BadRequest)
+        public static ServiceResult<T> Fail(List<string> errorMessage, HttpStatusCode status = HttpStatusCode.BadRequest)
         {
             return new ServiceResult<T>
             {
@@ -33,7 +34,7 @@ namespace App.Services
             };
         }
 
-        public static ServiceResult<T> Fail(string errorMessage , HttpStatusCode status = HttpStatusCode.BadRequest)
+        public static ServiceResult<T> Fail(string errorMessage, HttpStatusCode status = HttpStatusCode.BadRequest)
         {
             return new ServiceResult<T>
             {
@@ -51,16 +52,16 @@ namespace App.Services
     {
 
         public List<string>? ErrorMessage { get; set; }
-
+        [JsonIgnore]
         public bool IsSuccess => ErrorMessage == null || ErrorMessage.Count == 0;
-
+        [JsonIgnore]
         public bool IsFail => !IsSuccess;
-
+        [JsonIgnore]
         public HttpStatusCode Status { get; set; }
 
 
         // static factory method. newlemeyi kontrol altına alıyoruz.
-        public static ServiceResult Success( HttpStatusCode status = HttpStatusCode.OK)
+        public static ServiceResult Success(HttpStatusCode status = HttpStatusCode.OK)
         {
             return new ServiceResult
             {

@@ -56,16 +56,15 @@ namespace App.Services.Products
 
             // Guard Clauses - tüm olumsuz durumları if ile yaz ve return et.else yazma.
             // elseler kodun okunabilirliğini düşünüyor.
+
+
             var product = await productRepository.GetByIdAsync(id);
 
             if (product is null)
             {
                 return ServiceResult.Fail("Product not found", HttpStatusCode.NotFound);
             }
-            else
-            {
-
-            }
+            
             product.Name = request.Name;
             product.Price = request.Price;
             product.Stock = request.Stock;

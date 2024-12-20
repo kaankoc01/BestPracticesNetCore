@@ -32,6 +32,21 @@ namespace App.Services.Products
             return ServiceResult<List<ProductDto>>.Success(productsAsDto);
         }
 
+        public async Task<ServiceResult<List<ProductDto>>> GetPagedAllList(int pageNumber , int pageSize)
+        {
+            // eğer ki pagenumber 1 , page size da 10 gelirse , ilk 10 kayıt demek
+            // 1- 10 => ilk 10 kayıt , skip(0).Take(10) deriz.
+            // 2- 10 => 11-20 kayıt , skip(10).Take(10) deriz.
+
+            var products = await productRepository.GetAll().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var productsAsDto = products.Select(p => new ProductDto(p.Id, p.Name, p.Price, p.Stock)).ToList();
+
+            return ServiceResult<List<ProductDto>>.Success(productsAsDto);
+
+
+        }
+
         public async Task<ServiceResult<ProductDto?>> GetByIdAsync(int id)
         {
             var product = await productRepository.GetByIdAsync(id);
@@ -58,10 +73,10 @@ namespace App.Services.Products
             await productRepository.Addasync(product);
             await unitOfWork.SaveChangesAsync();
 
-            return ServiceResult<CreateProductResponse>.Success(new CreateProductResponse(product.Id));
+            return ServiceResult<CreateProductResponse>.SuccessAsCreated(new CreateProductResponse(product.Id),$"api/products/{product.Id}");
         }
-        // update ve delete de geriye bir şey dönmeyiz. 204 döneriz
 
+        // update ve delete de geriye bir şey dönmeyiz. 204 döneriz
         public async Task<ServiceResult> UpdateAsync(int id, UpdateProductRequest request)
         {
             // fast fail  önce olumsuz durumları dönmek.-> önce başarısız durumları döneriz
@@ -85,6 +100,23 @@ namespace App.Services.Products
             await unitOfWork.SaveChangesAsync();
 
             return ServiceResult.Success(HttpStatusCode.NoContent);
+        }
+
+        // parametre 2 den fazla olduğu an da request  oluşturabiliriz.
+        public async Task<ServiceResult> UpdateStockAsync(UpdateProductStockRequest request)
+        {
+            var product = await productRepository.GetByIdAsync(request.ProductId);
+
+            if(product is null)
+            {
+                return ServiceResult.Fail("Product not found", HttpStatusCode.NotFound);
+            }
+
+            product.Stock = request.Quantity;
+            productRepository.Update(product);
+            await unitOfWork.SaveChangesAsync();
+            return ServiceResult.Success(HttpStatusCode.NoContent);
+
         }
 
         public async Task<ServiceResult> DeleteAsync(int id)

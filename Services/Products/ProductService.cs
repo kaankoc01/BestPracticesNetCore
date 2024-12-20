@@ -1,9 +1,11 @@
 ﻿using App.Repositories;
 using App.Repositories.Products;
+using App.Services.ExceptionHandlers;
 using App.Services.Products.Create;
 using App.Services.Products.Update;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Net;
 
 namespace App.Services.Products
@@ -73,6 +75,10 @@ namespace App.Services.Products
 
         public async Task<ServiceResult<CreateProductResponse>> CreateAsync(CreateProductRequest Request)
         {
+
+            //   throw new CriticalException("kritik seviyede bir hata meydana geldi.");
+            
+
             // async kod . 2. yol async validation
             var anyProduct = await productRepository.Where(x => x.Name == Request.Name).AnyAsync();
              

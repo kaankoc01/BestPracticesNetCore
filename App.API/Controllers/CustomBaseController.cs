@@ -1,5 +1,4 @@
 ﻿using App.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -18,7 +17,7 @@ namespace App.API.Controllers
             }
             if (result.Status == HttpStatusCode.Created)
             {
-                return Created(result.UrlAsCreated, result.Data);
+                return Created(result.UrlAsCreated, result);
             }
 
             return new ObjectResult(result) { StatusCode = result.Status.GetHashCode() };

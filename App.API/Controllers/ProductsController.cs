@@ -1,4 +1,6 @@
 ﻿using App.Services.Products;
+using App.Services.Products.Create;
+using App.Services.Products.Update;
 using Microsoft.AspNetCore.Mvc;
 
 namespace App.API.Controllers
@@ -25,6 +27,6 @@ namespace App.API.Controllers
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id) => CreateActionResult(await productService.DeleteAsync(id));
-       
+               
     }
 }

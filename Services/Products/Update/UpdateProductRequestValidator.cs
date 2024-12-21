@@ -1,13 +1,19 @@
 ﻿using App.Repositories.Products;
 using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace App.Services.Products.Create
+namespace App.Services.Products.Update
 {
-    public class CreateProductRequestValidator : AbstractValidator<CreateProductRequest>
+    public class UpdateProductRequestValidator : AbstractValidator<UpdateProductRequest>
     {
+
         private readonly IProductRepository _productRepository;
-        // input validation
-        public CreateProductRequestValidator(IProductRepository productRepository)
+        
+        public UpdateProductRequestValidator(IProductRepository productRepository)
         {
             _productRepository = productRepository;
             RuleFor(x => x.Name)
@@ -16,10 +22,10 @@ namespace App.Services.Products.Create
             //1.yol  .Must(MustUniqueProductName).WithMessage("Bu isimde bir ürün zaten mevcut.");
 
             // price validation
-            RuleFor(x => x.Price).GreaterThan(0).WithMessage("Ürün fiyatı 0 dan büyük olmalıdır.");
+            RuleFor(x => x.Price).GreaterThan(0).WithMessage("Ürün fiyatı 0'dan büyük olmalıdır.");
 
-            // category id validation
-            RuleFor(x => x.CategoryId).GreaterThan(0).WithMessage("Ürün Kategori değeri 0 dan büyük olmalıdır.");
+            // Category ıd validation
+            RuleFor(x => x.CategoryId).GreaterThan(0).WithMessage("Ürün Kategori Değeri 0'dan büyük olmalıdır.");
 
             // stock inclusiveBetween validation
             RuleFor(x => x.Stock).InclusiveBetween(1, 100).WithMessage("Stok adedi 1 ile 100 arasında olmalıdır.");

@@ -1,4 +1,5 @@
 ﻿using App.Repositories.Categories;
+using App.Repositories.Interceptors;
 using App.Repositories.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +20,8 @@ namespace App.Repositories.Extension
                 {
                     sqlServerOptionsAction.MigrationsAssembly(typeof(RepositoryAssembly).Assembly.FullName);
                 });
+
+                options.AddInterceptors(new AuditDbContextIntercepter());
 
             });
 

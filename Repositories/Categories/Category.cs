@@ -2,7 +2,7 @@
 
 namespace App.Repositories.Categories
 {
-    public class Category
+    public class Category : IAuditEntity
     {
         // 1 e çok ilişki 
         public int Id { get; set; }
@@ -10,5 +10,7 @@ namespace App.Repositories.Categories
 
         //bir kategorinin mutlaka ürünü olacak diye bir koşul yok.
         public List<Product>? Products { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Updated { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace App.Services
 {
+    //wrapper class return type (dto) olmasın , tek bir tip üzerinden dönelim.
     public class ServiceResult<T>
     {
         public T? Data { get; set; }

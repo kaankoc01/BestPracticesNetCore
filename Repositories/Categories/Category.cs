@@ -2,11 +2,11 @@
 
 namespace App.Repositories.Categories
 {
-    public class Category : IAuditEntity
+    public class Category :BaseEntity<int>, IAuditEntity
     {
         // 1 e çok ilişki 
-        public int Id { get; set; }
-        public string Name { get; set; }
+
+        public string Name { get; set; } = default!;
 
         //bir kategorinin mutlaka ürünü olacak diye bir koşul yok.
         public List<Product>? Products { get; set; }

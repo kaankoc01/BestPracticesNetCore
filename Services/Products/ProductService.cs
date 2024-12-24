@@ -104,25 +104,28 @@ namespace App.Services.Products
             // elseler kodun okunabilirliğini düşünüyor.
 
 
-            var product = await productRepository.GetByIdAsync(id);
+            //var product = await productRepository.GetByIdAsync(id);
 
-            if (product is null)
-            {
-                return ServiceResult.Fail("Ürün bulunamadı.", HttpStatusCode.NotFound);
-            }
+            //if (product is null)
+            //{
+            //    return ServiceResult.Fail("Ürün bulunamadı.", HttpStatusCode.NotFound);
+            //}
+
+
             // aynı isimde bir ürün var mı kontrol et. değiştireceğimiz kodun name 'i başka satırda varmı ona bakıyoruz aslında. mesela kalem3 isimli başka bir ürün var mı, varsa hata dönüyoruz.
-            var isProductNameExist = await productRepository.Where(x => x.Name == request.Name && x.Id != product.Id).AnyAsync();
+            var isProductNameExist = await productRepository.Where(x => x.Name == request.Name && x.Id != id).AnyAsync();
             if (isProductNameExist)
             {
                 return ServiceResult.Fail("ürün ismi veri tabanında bulunmaktadır.", HttpStatusCode.BadRequest);
             }
 
-            product.Name = request.Name;
-            product.Price = request.Price;
-            product.Stock = request.Stock;
+            //product.Name = request.Name;
+            //product.Price = request.Price;
+            //product.Stock = request.Stock;
 
 
-            product = mapper.Map(request, product);
+            var product = mapper.Map<Product>(request);
+            product.Id = id;
 
             productRepository.Update(product);
             await unitOfWork.SaveChangesAsync();
@@ -151,11 +154,15 @@ namespace App.Services.Products
         {
             var product = await productRepository.GetByIdAsync(id);
 
-            if (product is null)
-            {
-                return ServiceResult.Fail("Product not found", HttpStatusCode.NotFound);
-            }
-            productRepository.Delete(product);
+            // kodda kod azalttık ama filter ile 2 kere veritabanına gitmiş olduk ve performans kaybı yaşadık.
+            // tabikş kod okunabilirliği açısından daha iyi oldu. ve veritabanında veri az olduğundan bu daha iyi oldu.
+            //if (product is null)
+            //{
+            //    return ServiceResult.Fail("Product not found", HttpStatusCode.NotFound);
+            //}
+
+
+            productRepository.Delete(product!);
             await unitOfWork.SaveChangesAsync();
             return ServiceResult.Success(HttpStatusCode.NoContent);
         }

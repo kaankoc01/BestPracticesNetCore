@@ -37,7 +37,14 @@ namespace App.Repositories.Interceptors
 
                 if (entityEntry.Entity is not IAuditEntity auditEntity) continue;
 
+
+                if (entityEntry.State is not EntityState.Added and not EntityState.Modified)
+                {
+                    continue;
+                }
                 _behaviors[entityEntry.State](eventData.Context, auditEntity);
+
+
 
                 //switch bloguna gerek kalmadı
                 //çünkü yukarıda dictionary oluşturduk ve bu dictionary içerisinde key olarak EntityState'leri, value olarak da metotları tutuyoruz.

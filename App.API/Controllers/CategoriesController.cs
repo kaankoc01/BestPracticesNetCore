@@ -1,6 +1,9 @@
-﻿using App.Services.Categories;
+﻿using App.Repositories.Categories;
+using App.Repositories.Products;
+using App.Services.Categories;
 using App.Services.Categories.Create;
 using App.Services.Categories.Update;
+using App.Services.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace App.API.Controllers
@@ -23,10 +26,12 @@ namespace App.API.Controllers
 
         [HttpPost]
         public async Task<IActionResult> CreateCategory(CreateCategoryRequest request) => CreateActionResult(await categoryService.CreateAsync(request));
-        
+
+        [ServiceFilter(typeof(NotFoundFilter<Category, int>))]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id, UpdateCategoryRequest request) => CreateActionResult(await categoryService.UpdateAsync(id, request));
 
+        [ServiceFilter(typeof(NotFoundFilter<Category, int>))]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id) => CreateActionResult(await categoryService.DeleteAsync(id));
 

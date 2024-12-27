@@ -1,16 +1,20 @@
 ﻿using System.Net;
+using App.Application.Contracts.Caching;
 using App.Application.Contracts.Persistence;
+using App.Application.Contracts.ServiceBus;
 using App.Application.Features.Products.Create;
 using App.Application.Features.Products.Dto;
 using App.Application.Features.Products.Update;
 using App.Application.Features.Products.UpdateStock;
 using App.Domain.Entities;
+using App.Domain.Events;
 using AutoMapper;
 
 namespace App.Application.Features.Products
 {
-    public class ProductService(IProductRepository productRepository, IUnitOfWork unitOfWork,IMapper mapper) : IProductService
+    public class ProductService(IProductRepository productRepository, IUnitOfWork unitOfWork,IMapper mapper,ICacheService cacheService,IServiceBus busService) : IProductService
     {
+        private const string productListCacheKey = "ProductListCacheKey";
         public async Task<ServiceResult<List<ProductDto>>> GetTopPriceProductsAsync(int count)
         {
             var products = await productRepository.GetTopPriceProductsAsync(count);
@@ -27,6 +31,15 @@ namespace App.Application.Features.Products
 
         public async Task<ServiceResult<List<ProductDto>>> GetAllListAsync()
         {
+            //cashe aside design pattern kullanıcam
+            // önce cache den bakarım , yoksa veritabanına bakarım. veritabanından aldığım veriyi cache e atarım.
+            // daha iyisi var , decorated , proxy design pattern kullanarak cache işlemlerini ayrı bir sınıfta yapabiliriz.
+
+            var productListAsCached = await cacheService.GetAsync<List<ProductDto>>(productListCacheKey);
+
+            if (productListAsCached is not null) return ServiceResult<List<ProductDto>>.Success(productListAsCached);
+
+
             // list döndüğümüz yerlerde geriye null dönmeyelim , boş liste dönelim.
             var products = await productRepository.GetAllAsync();
 
@@ -35,6 +48,8 @@ namespace App.Application.Features.Products
 
 
             var productsAsDto =mapper.Map<List<ProductDto>>(products);
+
+            await cacheService.AddAsync(productListCacheKey, productsAsDto, TimeSpan.FromMinutes(1));
 
             return ServiceResult<List<ProductDto>>.Success(productsAsDto);
         }
@@ -91,6 +106,8 @@ namespace App.Application.Features.Products
 
             await productRepository.AddAsync(product);
             await unitOfWork.SaveChangesAsync();
+
+            await busService.PublishAsync(new ProductAddedEvent(product.Id,product.Name,product.Price));
 
             return ServiceResult<CreateProductResponse>.SuccessAsCreated(new CreateProductResponse(product.Id),$"api/products/{product.Id}");
         }
